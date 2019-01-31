@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="system">
+    <system systemId="https://awtabts01.idb.iadb.org/TimeAndLaborEntry/WcfService_TimeAndLaborInterface.svc?singleWsdl" uri="wsdl/awtabts01.idb.iadb.org/TimeAndLaborEntry/WcfService_TimeAndLaborInterface.svc.singlewsdl.wsdl"/>
+</catalog>

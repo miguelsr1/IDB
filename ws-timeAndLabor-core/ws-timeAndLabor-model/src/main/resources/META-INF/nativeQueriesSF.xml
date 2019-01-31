@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<entity-mappings xmlns="http://java.sun.com/xml/ns/persistence/orm" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm  http://java.sun.com/xml/ns/persistence/orm_2_0.xsd"
+                 version="2.0">
+    <description>Native queries for Application</description>
+    <named-native-query name="ItemsReportsSF.itemsReports" 
+                        result-class="org.iadb.ws.timeandlabor.model.sf.TmpItemsSFDto">
+        <query>
+            <![CDATA[
+                SELECT 
+                    rownum          as rid,
+                    user_id         as userId, 
+                    attendance_type as attendanceType,
+                    date_end        as dateEnd, 
+                    date_completion as dateCompletion, 
+                    hours_total     as hoursTotal, 
+                    wbs             as wbs,
+                    fund            as fund
+                FROM
+                    VW_TIME_AND_LABOR
+            ]]>
+        </query>
+        
+    </named-native-query>
+</entity-mappings>

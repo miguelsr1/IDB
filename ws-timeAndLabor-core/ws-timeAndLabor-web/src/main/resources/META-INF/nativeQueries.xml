@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<entity-mappings xmlns="http://java.sun.com/xml/ns/persistence/orm" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm  http://java.sun.com/xml/ns/persistence/orm_2_0.xsd"
+                 version="2.0">
+    <description>Native queries for Application</description>
+    <!--<named-native-query name="UserSampleDTO.findUsersToSetSupervisor" 
+                        result-class="org.iadb.knlsystem.samples.fakeentities.UserSampleDTO">
+        <query>
+            SELECT
+            usr_id            AS usrId,
+            usr_pcmail        AS pcmail,
+            unt_id_unit       AS untId,
+            per_id_person     AS perId,
+            per_id_supervisor AS supervisorId
+            FROM
+            Usr_User_tb 
+            WHERE
+            usr_pcmail IN (	SELECT
+            Username 
+            FROM
+            bus_Biztalk_Users_tb 
+            WHERE
+            SupervisorUsername IS NULL OR
+            SupervisorUsername = '') AND
+            usr_active_flag=1
+        </query>
+        
+    </named-native-query>
+    
+    <named-native-query name="UserSampleDTO.findExecutivesInfo" 
+                        result-class="org.iadb.knlsystem.samples.fakeentities.UserSampleDTO">
+        <query>
+            SELECT
+            usr.USR_ID                                                       AS usrId,
+            usr.USR_PCMAIL                                                   AS pcmail,
+            usr.UNT_ID_UNIT                                                  AS untId,
+            usr.PER_ID_PERSON                                                AS perId,
+            dbo.knlPortalServices_getOneCoordinatorByUnitId(usr.unt_id_unit) AS supervisorId
+            FROM
+            USR_USER_TB usr 
+            WHERE
+            USR_ACTIVE_FLAG=1 AND
+            USR_PCMAIL IN ( 'federicob','juliek','jscriven','alexandrer','slevy','jaimes','lamoreno','GIORGIO','MCGOMEZ' )
+
+        </query>
+        
+    </named-native-query>
+    
+    <named-native-query name="SFHistory.fullLoad">
+        <query>
+            insert into SUCCESS_FACTORS_HISTORY_TB (REG_ID,STUD_ID,CPNT_TYP_ID,CPNT_ID,CMPL_STAT_ID,COMPL_DTE,GRADE,CONTACT_HRS,INST_NAME,MOODLE_COURSE_ID,EMAIL)
+
+            SELECT
+    
+            reg.reg_id as REG_ID,
+            usr.usr_employee_id as STUD_ID,
+            'HISTORICAL' as CPNT_TYP_ID,
+            reg.out_id_outcome as CPNT_ID,
+            'HISTORICAL_COMPLETE' as CMPL_STAT_ID,
+            dbo.knlPortalServices_getEndDateByOutId(reg.out_id_outcome) as COMPL_DTE,
+            dbo.knlPortalServices_getGradeEstimateByRegId(reg.reg_id) as GRADE,
+            dbo.knlPortalServices_getDurationByOutId(reg.out_id_outcome) as CONTACT_HRS,
+            isNull(
+            dbo.knlPortalServices_isEmpty(
+            dbo.knlPortalServices_getExternalFacilitatorsByOutId(reg.out_id_outcome)
+            ),'KNLSystem_Instructor') as INST_NAME,
+            dbo.knlPortalServices_getMoodleIdByOutId(reg.out_id_outcome) as MOODLE_COURSE_ID,
+            per.per_email as EMAIL
+            FROM
+            REU_REGISTRATION_USER_TB REU,
+            REG_REGISTRATION_TB REG ,
+            USR_USER_TB USR,
+            PER_PERSON_TB PER 
+            WHERE
+            REU.REG_ID = REG.REG_ID AND
+            REU.USR_ID = USR.USR_ID AND
+            USR.PER_ID_PERSON = PER.PER_ID AND
+            REG.REG_DELETED_FLAG=0 and reg.reg_deleted_date is null 
+        </query>
+        
+    </named-native-query>
+    
+    <named-native-query name="SFHistory.loadByOutId">
+        <query>
+            insert into SUCCESS_FACTORS_HISTORY_TB (REG_ID,STUD_ID,CPNT_TYP_ID,CPNT_ID,CMPL_STAT_ID,COMPL_DTE,GRADE,CONTACT_HRS,INST_NAME,MOODLE_COURSE_ID,EMAIL)
+
+            SELECT
+    
+            reg.reg_id as REG_ID,
+            usr.usr_employee_id as STUD_ID,
+            'HISTORICAL' as CPNT_TYP_ID,
+            reg.out_id_outcome as CPNT_ID,
+            'HISTORICAL_COMPLETE' as CMPL_STAT_ID,
+            dbo.knlPortalServices_getEndDateByOutId(reg.out_id_outcome) as COMPL_DTE,
+            dbo.knlPortalServices_getGradeEstimateByRegId(reg.reg_id) as GRADE,
+            dbo.knlPortalServices_getDurationByOutId(reg.out_id_outcome) as CONTACT_HRS,
+            isNull(
+            dbo.knlPortalServices_isEmpty(
+            dbo.knlPortalServices_getExternalFacilitatorsByOutId(reg.out_id_outcome)
+            ),'KNLSystem_Instructor') as INST_NAME,
+            dbo.knlPortalServices_getMoodleIdByOutId(reg.out_id_outcome) as MOODLE_COURSE_ID,
+            per.per_email as EMAIL
+            FROM
+            REU_REGISTRATION_USER_TB REU,
+            REG_REGISTRATION_TB REG ,
+            USR_USER_TB USR,
+            PER_PERSON_TB PER 
+            WHERE
+            REU.REG_ID = REG.REG_ID AND
+            REU.USR_ID = USR.USR_ID AND
+            USR.PER_ID_PERSON = PER.PER_ID AND
+            REG.REG_DELETED_FLAG=0 and reg.reg_deleted_date is null AND
+            reg.out_id_outcome = :outId
+        </query>
+        
+    </named-native-query>
+    
+    <named-native-query name="SFHistory.truncateTable">
+        <query>
+            truncate table SUCCESS_FACTORS_HISTORY_TB
+        </query>
+    </named-native-query>
+    
+    <named-native-query name="SFHistory.fullLoadQuery" 
+                        result-class="org.iadb.knlsystem.samples.fakeentities.SFHistoryDTO">
+        <query>
+            
+            SELECT
+            reg.reg_id                                                   AS regId, 
+            usr.usr_employee_id                                          AS studId, 
+            'HISTORICAL'                                                 AS cpntTypId, 
+            reg.out_id_outcome                                           AS cpntId, 
+            'HISTORICAL_COMPLETE'                                        AS cmplStatId, 
+            dbo.knlPortalServices_getEndDateByOutId(reg.out_id_outcome)  AS complDte, 
+            dbo.knlPortalServices_getGradeEstimateByRegId(reg.reg_id)    AS grade, 
+            dbo.knlPortalServices_getDurationByOutId(reg.out_id_outcome) AS contactHrs, 
+            isNull( dbo.knlPortalServices_isEmpty( dbo.knlPortalServices_getExternalFacilitatorsByOutId(reg.out_id_outcome) ),'KNLSystem_Instructor') AS instName, 
+            dbo.knlPortalServices_getMoodleIdByOutId(reg.out_id_outcome) AS moodleCourseId, 
+            per.per_email                                                AS email 
+            FROM 
+            REU_REGISTRATION_USER_TB REU, 
+            REG_REGISTRATION_TB REG , 
+            USR_USER_TB USR, 
+            PER_PERSON_TB PER 
+            WHERE 
+            REU.REG_ID = REG.REG_ID AND 
+            REU.USR_ID = USR.USR_ID AND 
+            USR.PER_ID_PERSON = PER.PER_ID AND 
+            REG.REG_DELETED_FLAG=0 AND 
+            reg.reg_deleted_date IS NULL 
+
+        </query>
+        
+    </named-native-query>
+    
+    <named-native-query name="SFHistoryDTO.findSFHistoryByOutId" 
+                        result-class="org.iadb.knlsystem.samples.fakeentities.SFHistoryDTO">
+        <query>
+            
+            SELECT
+            reg.reg_id                                                   AS regId, 
+            dbo.f_pad_before(usr.usr_employee_id,8,'0')               AS studId, 
+            'HISTORY'                                                 AS cpntTypId, 
+            reg.out_id_outcome                                           AS cpntId, 
+            'HISTORICAL_COMPLETE'                                        AS cmplStatId, 
+            dbo.knlPortalServices_getEndDateByOutId(reg.out_id_outcome)  AS complDte, 
+            dbo.knlPortalServices_getGradeEstimateByRegId(reg.reg_id)    AS grade, 
+            dbo.knlPortalServices_getDurationByOutId(reg.out_id_outcome) AS contactHrs, 
+            'KNLSystem_Instructor' AS instName, 
+            dbo.knlPortalServices_getMoodleIdByOutId(reg.out_id_outcome) AS moodleCourseId, 
+            per.per_email                                                AS email,
+            per.per_moodle_user_id                                       AS moodleUserId 
+            FROM 
+            REU_REGISTRATION_USER_TB REU, 
+            REG_REGISTRATION_TB REG , 
+            USR_USER_TB USR, 
+            PER_PERSON_TB PER 
+            WHERE 
+            REU.REG_ID = REG.REG_ID AND 
+            REU.USR_ID = USR.USR_ID AND 
+            USR.PER_ID_PERSON = PER.PER_ID AND 
+            REG.REG_DELETED_FLAG=0 AND 
+            reg.reg_deleted_date IS NULL AND
+            reg.out_id_outcome = :outId
+
+        </query>
+        
+    </named-native-query>
+    
+    <named-native-query name="SFItemBasicDTO.findAllItemsBasicInfo" 
+                        result-class="org.iadb.knlsystem.samples.fakeentities.SFItemBasicDTO">
+        <query>
+            <![CDATA[
+            SELECT
+            OUT.OUT_ID AS outId,
+            left(replace(out.out_name,'|','-'),100) AS outName	
+            FROM
+            OUT_OUTCOME_TB OUT
+            WHERE
+	
+            OUT.OUT_DELETED_FLAG=0 AND
+            OUT.OUT_DELETED_DATE IS NULL AND
+            dbo.knlPortalServices_getStartDateByOutId(out.out_id) <= getDate()
+            ]]>
+        </query>
+        
+    </named-native-query>
+    
+    <named-native-query name="SFHistoryDTO.count">
+        <query>
+            SELECT
+            count(reg_id) as totalRegistrations
+            FROM
+            Reg_Registration_tb reg,
+            Out_Outcome_tb OUT 
+            WHERE
+            reg.out_id_outcome = OUT.out_id AND
+            reg.reg_deleted_flag=0 AND
+            reg.reg_deleted_date IS NULL AND
+            OUT.out_deleted_flag=0 AND
+            OUT.out_deleted_date IS NULL 
+        </query>
+    </named-native-query>
+   
+    <named-native-query name="getMoodleCourseIdByOutId">
+        <query>
+            select dbo.knlPortalServices_getMoodleIdByOutId(?)
+        </query>
+    </named-native-query>-->
+</entity-mappings>
